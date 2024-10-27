@@ -15,10 +15,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    @NotBlank(message = "Username cannot be empty")
-    private String username;
-
     @Column(name = "first_name", nullable = false)
     @NotBlank(message = "First name cannot be empty")
     private String firstName;
@@ -26,6 +22,10 @@ public class User {
     @Column(name = "last_name", nullable = false)
     @NotBlank(message = "Last name cannot be empty")
     private String lastName;
+
+    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Username cannot be empty")
+    private String username;
 
     @Column(nullable = false, unique = true)
     @NotBlank(message = "Email cannot be empty")
@@ -62,14 +62,6 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getFirstName() {
         return firstName;
     }
@@ -86,6 +78,14 @@ public class User {
         this.lastName = lastName;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -100,34 +100,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Timestamp getCreated() {
-        return created;
-    }
-    
-    public void setCreated(Timestamp created) {
-        this.created = created;
-    }
-
-    public Timestamp getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(Timestamp updated) {
-        this.updated = updated;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", created=" + created +
-                ", updated=" + updated +
-                '}';
     }
 }
