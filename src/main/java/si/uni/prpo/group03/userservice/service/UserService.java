@@ -2,8 +2,8 @@ package si.uni.prpo.group03.userservice.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,8 @@ import si.uni.prpo.group03.userservice.exception.UserNotFoundException;
 import si.uni.prpo.group03.userservice.model.User;
 import si.uni.prpo.group03.userservice.repository.UserRepository;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +31,9 @@ public class UserService {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Value("${notification.service.url}")
+    private String notificationServiceURL;
 
     @Transactional
     public UserDTO registerUser(RegisterRequestDTO registerRequest) {
@@ -47,20 +52,17 @@ public class UserService {
         user.setLastName(registerRequest.getLastName());
         user.setConfirmed(false);
         user.setConfirmationToken(UUID.randomUUID().toString());
+        user.setConfirmationExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
         user = userRepository.save(user);
 
         String confirmationLink = "http://localhost:8080/api/users/confirm?token=" + user.getConfirmationToken();
         NotificationDTO notification = new NotificationDTO();
         notification.setEmail(user.getEmail());
         notification.setSubject("Confirm your account");
-        notification.setMessage("Click the following link to confirm your account: " + confirmationLink);
+        notification.setMessage("Click the following link to confirm your account: " + confirmationLink + "\n" +
+                "This link will expire in 24 hours");
 
-        String notificationServiceURL = "http://localhost:8081/api/notifications/confirmation";
-
-        HttpEntity<NotificationDTO> req = new HttpEntity<>(notification);
-
-        // Spring automatically throws error for 4xx or 5xx response status code
-        ResponseEntity<String> response = restTemplate.postForEntity(notificationServiceURL, req, String.class);
+        sendNotification(notification, "/api/notifications/confirmation");
 
         return new UserDTO(user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName());
     }
@@ -71,6 +73,7 @@ public class UserService {
             User user = optionalUser.get();
             user.setConfirmed(true);
             user.setConfirmationToken(null);
+            user.setConfirmationExpiresAt(null);
             userRepository.save(user);
             return;
         }
@@ -93,6 +96,41 @@ public class UserService {
             }
         }
         throw new UserNotFoundException("User with that email not found");
+    }
+
+    @Transactional
+    public void requestPasswordReset(PasswordResetReqDTO passwordResetRequest) {
+        Optional<User> optionalUser = userRepository.findByEmail(passwordResetRequest.getEmail());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setResetToken(UUID.randomUUID().toString());
+            user.setResetExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
+            userRepository.save(user);
+
+            String resetLink = "http://localhost:8080/api/users/password-reset?token=" + user.getResetToken();
+            NotificationDTO notification = new NotificationDTO();
+            notification.setEmail(user.getEmail());
+            notification.setSubject("Reset your password");
+            notification.setMessage("Click the following link to reset your password: " + resetLink + "\n" +
+                    "This link will expire in 24 hours");
+
+            sendNotification(notification, "/api/notifications/password-reset");
+            return;
+        }
+        throw new UserNotFoundException("User with that email not found");
+    }
+
+    public void resetPassword(PasswordResetDTO passwordReset) {
+        Optional<User> optionalUser = userRepository.findByResetToken(passwordReset.getToken());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPassword(encodePassword(passwordReset.getNewPassword()));
+            user.setResetToken(null);
+            user.setResetExpiresAt(null);
+            userRepository.save(user);
+            return;
+        }
+        throw new UserNotFoundException("User not found or token invalid");
     }
 
     public UserDTO getUserById(Long id) {
@@ -133,5 +171,11 @@ public class UserService {
 
     private boolean isPasswordValid(String rawPassword, String encodedPassword) {
         return bCryptPasswordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    private void sendNotification(NotificationDTO notification, String endpoint) {
+        HttpEntity<NotificationDTO> req = new HttpEntity<>(notification);
+        // Spring automatically throws error for 4xx or 5xx response status code
+        restTemplate.postForEntity(notificationServiceURL + endpoint, req, String.class);
     }
 }

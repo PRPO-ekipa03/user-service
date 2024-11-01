@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
@@ -40,23 +39,27 @@ public class User {
     private boolean confirmed;
 
     private String confirmationToken;
+    private Instant confirmationExpiresAt;
+
+    private String resetToken;
+    private Instant resetExpiresAt;
 
     @Column(nullable = false, updatable = false)
-    private Timestamp created;
+    private Instant created;
 
     @Column
-    private Timestamp updated;
+    private Instant updated;
 
     @PrePersist
     protected void onCreate() {
         Instant now = Instant.now();
-        this.updated = Timestamp.from(now);
-        this.created = Timestamp.from(now);
+        this.updated = now;
+        this.created = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updated = Timestamp.from(Instant.now());
+        this.updated = Instant.now();
     }
 
     public Long getId() {
@@ -119,15 +122,39 @@ public class User {
         return confirmationToken;
     }
 
+    public Instant getConfirmationExpiresAt() {
+        return confirmationExpiresAt;
+    }
+
+    public void setConfirmationExpiresAt(Instant confirmationExpiresAt) {
+        this.confirmationExpiresAt = confirmationExpiresAt;
+    }
+
     public void setConfirmationToken(String confirmationToken) {
         this.confirmationToken = confirmationToken;
     }
 
-    public Timestamp getCreated() {
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public Instant getResetExpiresAt() {
+        return resetExpiresAt;
+    }
+
+    public void setResetExpiresAt(Instant resetExpiresAt) {
+        this.resetExpiresAt = resetExpiresAt;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public Instant getCreated() {
         return created;
     }
 
-    public Timestamp getUpdated() {
+    public Instant getUpdated() {
         return updated;
     }
 }
