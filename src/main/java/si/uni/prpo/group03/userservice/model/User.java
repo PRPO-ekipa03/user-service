@@ -36,6 +36,11 @@ public class User {
     @NotBlank(message = "Password cannot be empty")
     private String password;
 
+    @Column(nullable = false)
+    private boolean confirmed;
+
+    private String confirmationToken;
+
     @Column(nullable = false, updatable = false)
     private Timestamp created;
 
@@ -100,5 +105,29 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public String getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+
+    public Timestamp getCreated() {
+        return created;
+    }
+
+    public Timestamp getUpdated() {
+        return updated;
     }
 }

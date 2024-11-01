@@ -24,6 +24,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+    @GetMapping("/confirm")
+    public ResponseEntity<String> confirmUser(@RequestParam("token") String token) {
+        userService.confirmUser(token);
+        return ResponseEntity.status(HttpStatus.OK).body("Account confirmed successfully!");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<UserDTO> loginUser(@Valid @RequestBody LoginRequestDTO loginRequest) {
         UserDTO user = userService.loginUser(loginRequest);
