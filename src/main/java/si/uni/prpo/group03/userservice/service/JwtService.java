@@ -34,10 +34,8 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public boolean validateToken(String jwtToken, User userDetails) {
-        final String userId = extractSubject(jwtToken);
-        final String userDetailsId = userDetails.getId().toString();
-        return userId.equals(userDetailsId) && !isTokenExpired(jwtToken);
+    public boolean validateToken(String jwtToken) {
+        return !isTokenExpired(jwtToken);
     }
 
     private boolean isTokenExpired(String jwtToken) {

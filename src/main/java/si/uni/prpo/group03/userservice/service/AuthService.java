@@ -36,6 +36,13 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
+    public String validateToken(String token) {
+        if (!jwtService.validateToken(token)) {
+            throw new InvalidCredentialsException("Invalid token");
+        }
+        return jwtService.extractSubject(token);
+    }
+
     @Transactional
     public UserDTO registerUser(RegisterRequestDTO registerRequest) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {

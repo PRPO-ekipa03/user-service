@@ -15,6 +15,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @PostMapping("/validate-token")
+    public ResponseEntity<String> validateToken(@RequestBody String token) {
+        String userId = authService.validateToken(token);
+        return ResponseEntity.status(HttpStatus.OK).body(userId);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequest) {
         UserDTO user = authService.registerUser(registerRequest);
@@ -39,7 +45,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Password reset email sent successfully!");
     }
 
-    @PostMapping("/password-reset")
+    @PatchMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetDTO passwordReset) {
         authService.resetPassword(passwordReset);
         return ResponseEntity.status(HttpStatus.OK).body("Password reset successfully!");
