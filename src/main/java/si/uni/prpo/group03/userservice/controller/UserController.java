@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import si.uni.prpo.group03.userservice.dto.LoginRequestDTO;
-import si.uni.prpo.group03.userservice.dto.RegisterRequestDTO;
-import si.uni.prpo.group03.userservice.dto.UserDTO;
-import si.uni.prpo.group03.userservice.dto.UserUpdateDTO;
+import si.uni.prpo.group03.userservice.dto.*;
 import si.uni.prpo.group03.userservice.service.UserService;
 
 @RestController
@@ -17,18 +14,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequest) {
-        UserDTO user = userService.registerUser(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<UserDTO> loginUser(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        UserDTO user = userService.loginUser(loginRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {

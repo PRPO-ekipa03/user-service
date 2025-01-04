@@ -3,13 +3,17 @@ package si.uni.prpo.group03.userservice.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,22 +40,31 @@ public class User {
     @NotBlank(message = "Password cannot be empty")
     private String password;
 
+    @Column(nullable = false)
+    private boolean confirmed;
+
+    private String confirmationToken;
+    private Instant confirmationExpiresAt;
+
+    private String resetToken;
+    private Instant resetExpiresAt;
+
     @Column(nullable = false, updatable = false)
-    private Timestamp created;
+    private Instant created;
 
     @Column
-    private Timestamp updated;
+    private Instant updated;
 
     @PrePersist
     protected void onCreate() {
         Instant now = Instant.now();
-        this.updated = Timestamp.from(now);
-        this.created = Timestamp.from(now);
+        this.updated = now;
+        this.created = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updated = Timestamp.from(Instant.now());
+        this.updated = Instant.now();
     }
 
     public Long getId() {
@@ -100,5 +113,79 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public String getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+
+    public Instant getConfirmationExpiresAt() {
+        return confirmationExpiresAt;
+    }
+
+    public void setConfirmationExpiresAt(Instant confirmationExpiresAt) {
+        this.confirmationExpiresAt = confirmationExpiresAt;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public Instant getResetExpiresAt() {
+        return resetExpiresAt;
+    }
+
+    public void setResetExpiresAt(Instant resetExpiresAt) {
+        this.resetExpiresAt = resetExpiresAt;
+    }
+
+    public Instant getCreated() {
+        return created;
+    }
+
+    public Instant getUpdated() {
+        return updated;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Assuming all users have a single role "ROLE_USER"
+        return Collections.singletonList(new SimpleGrantedAuthority("USER"));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return confirmed;
     }
 }
