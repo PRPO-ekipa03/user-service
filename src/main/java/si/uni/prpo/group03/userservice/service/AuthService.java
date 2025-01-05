@@ -63,7 +63,11 @@ public class AuthService {
         user.setConfirmationExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
         user = userRepository.save(user);
 
-        String confirmationLink = "http://localhost:8080/api/auth/confirm?token=" + user.getConfirmationToken();
+
+        String apiGatewayHost = System.getenv().getOrDefault("API_GATEWAY_HOST", "localhost");
+        String apiGatewayPort = System.getenv().getOrDefault("API_GATEWAY_PORT", "8080");
+        String confirmationLink = "http://" + apiGatewayHost + ":" + apiGatewayPort + "/api/auth/confirm?token=" + user.getConfirmationToken();
+
         NotificationDTO notification = new NotificationDTO();
         notification.setEmail(user.getEmail());
         notification.setSubject("Confirm your account");
@@ -116,7 +120,9 @@ public class AuthService {
             user.setResetExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
             userRepository.save(user);
 
-            String resetLink = "http://localhost:8080/api/auth/password-reset?token=" + user.getResetToken();
+            String apiGatewayHost = System.getenv().getOrDefault("API_GATEWAY_HOST", "localhost");
+            String apiGatewayPort = System.getenv().getOrDefault("API_GATEWAY_PORT", "8080");
+            String resetLink = "http://" + apiGatewayHost + ":" + apiGatewayPort + "/api/auth/password-reset?token=" + user.getResetToken();
             NotificationDTO notification = new NotificationDTO();
             notification.setEmail(user.getEmail());
             notification.setSubject("Reset your password");
