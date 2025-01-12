@@ -65,8 +65,8 @@ public class AuthService {
 
 
         String apiGatewayHost = System.getenv().getOrDefault("API_GATEWAY_HOST", "localhost");
-        String apiGatewayPort = System.getenv().getOrDefault("API_GATEWAY_PORT", "8080");
-        String confirmationLink = "http://" + apiGatewayHost + ":" + apiGatewayPort + "/api/auth/confirm?token=" + user.getConfirmationToken();
+        String apiGatewayPort = System.getenv().getOrDefault("API_GATEWAY_PORT", "4200");
+        String confirmationLink = "http://" + apiGatewayHost + ":" + apiGatewayPort + "/auth/confirm?token=" + user.getConfirmationToken();
 
         NotificationDTO notification = new NotificationDTO();
         notification.setEmail(user.getEmail());
