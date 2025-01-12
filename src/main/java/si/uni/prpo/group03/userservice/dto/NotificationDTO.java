@@ -20,7 +20,10 @@ public class NotificationDTO {
     @Schema(description = "Subject of the notification email", example = "Account Created Successfully")
     private String subject;
 
-    // Getters and Setters
+    @NotBlank(message = "Type should not be empty")
+    @Schema(description = "Type of the notification")
+    private String type;
+
     public String getEmail() {
         return email;
     }
@@ -33,6 +36,10 @@ public class NotificationDTO {
         return subject;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -43,5 +50,9 @@ public class NotificationDTO {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
