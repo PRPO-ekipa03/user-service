@@ -33,6 +33,7 @@ public class AuthService {
 
     @Value("${notification.service.url}")
     private String notificationServiceURL;
+
     @Autowired
     private JwtService jwtService;
 
